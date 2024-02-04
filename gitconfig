@@ -1,0 +1,10 @@
+[alias]
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+[user]
+	name = Shawn Bai
+	email = sbai@redhat.com
+[core]
+	editor = vim

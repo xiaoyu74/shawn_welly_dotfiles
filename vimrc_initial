@@ -1,0 +1,99 @@
+" General settings
+set number                                 " Show line numbers
+set cursorline                             " Highlight the current line
+set cursorcolumn                           " Highlight the current column
+set colorcolumn=100                        " Highlight the 100th column
+set nocompatible                           " Disable Vi compatibility mode
+set encoding=utf-8                         " Set file encoding to utf-8
+set termguicolors                          " Enable true color support
+set guifont=Fira\ Code\ Retina:h11         " Set GUI font
+
+" Remap keys
+inoremap jj <ESC>                         " Map 'jj' to ESC in insert mode
+
+" Custom commands
+command! Blame Git blame                  " Add a custom command for Git blame
+
+" Plugin management with Vundle
+set rtp+=~/.vim/bundle/Vundle.vim         " Set runtime path to include Vundle
+filetype off                              " Required by Vundle before initialization
+
+call vundle#begin()                       " Begin Vundle plugin section
+" Vundle managed plugins
+Plugin 'VundleVim/Vundle.vim'             " Vundle manage itself
+Plugin 'vim-airline/vim-airline'          " Status/tabline
+Plugin 'tpope/vim-fugitive'               " Git wrapper
+Plugin 'tpope/vim-commentary'             " Comment out multiple lines in Vim
+Plugin 'mhartington/oceanic-next'
+Plugin 'airblade/vim-gitgutter'           " Git gutter
+Plugin 'fatih/vim-go'                     " Go development plugin
+Plugin 'Valloric/YouCompleteMe'           " Code-completion engine
+Plugin 'dense-analysis/ale'               " Asynchronous linting/fixing
+Plugin 'junegunn/fzf'                     " Fuzzy file finder
+Plugin 'junegunn/fzf.vim'                 " Fzf Vim integration
+Plugin 'ggreer/the_silver_searcher'       " Code-searching tool
+Plugin 'preservim/nerdtree'               " File system explorer
+Plugin 'plasticboy/vim-markdown'
+Plugin 'vim-pandoc/vim-pandoc', {'for': 'markdown'}
+Plugin 'vim-pandoc/vim-pandoc-syntax', {'for': 'markdown'}
+Plugin 'suan/vim-instant-markdown'
+Plugin 'scrooloose/syntastic'
+call vundle#end()                         " End Vundle section
+filetype plugin indent on                 " Turn filetype detection back on
+
+" Markdown settings
+autocmd FileType markdown setlocal spell spelllang=en_us
+
+" Airline configuration
+" let g:airline_theme='luna'        " Set the airline theme
+let g:airline_powerline_fonts = 1         " Enable powerline fonts
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#branch#enabled = 1
+let g:airline#extensions#branch#displayed_head_limit = 10
+
+" Go development settings with vim-go
+let g:go_def_mode='gopls'                 " Use Language Server Protocol for definitions
+let g:go_info_mode='gopls'                " Use Language Server Protocol for info
+let g:go_fmt_command = "goimports"        " Format code and organize imports on save
+" Vim-go mappings
+au FileType go nmap <Leader>i <Plug>(go-info)
+au FileType go nmap <Leader>d <Plug>(go-def)
+
+" YouCompleteMe settings for Go
+let g:ycm_language_server = [
+            \ {
+            \   'name': 'go',
+            \   'cmdline': ['gopls'],
+            \   'filetypes': ['go']
+            \ }
+            \ ]
+
+" ALE linting settings
+let g:ale_linters = {
+            \ 'go': ['gopls', 'golint', 'govet'],
+            \ }
+let g:ale_fixers = {
+            \ 'go': ['gofmt', 'goimports'],
+            \ }
+let g:ale_fix_on_save = 1                 " Fix issues on save
+set updatetime=300                        " Set update time for ALE
+
+" Fzf configuration
+set rtp+=~/.fzf
+command! FzfFilesFromSpecificFolder cd ~/osd_functional_work | Files
+nnoremap <C-s> :FzfFilesFromSpecificFolder<CR>
+
+" NERDTree key mapping
+nmap <C-n> :NERDTreeToggle<CR>
+
+" Leader key and custom navigation mappings
+let mapleader = ","                       " Set leader key to comma
+nnoremap <Leader>g :YcmCompleter GoTo<CR> " Jump to function definition
+nnoremap <Leader>b <C-o>                  " Go back to previous position
+
+" Color settings 
+colorscheme OceanicNext
+highlight Pmenu guibg=#D3D3D3 guifg=#505050
+highlight goDeclaration guifg=#ADD8E6
+highlight goStatement guifg=#D291E4
+highlight goVar guifg=#ADD8E6
