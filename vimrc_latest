@@ -9,6 +9,7 @@ set nocompatible                            " Disable Vi compatibility mode
 set encoding=utf-8                          " Set file encoding to utf-8
 set termguicolors                           " Enable true color support
 set guifont=Fira\ Code\ Retina:h11          " Set GUI font
+let mapleader = ","
 
 " Remap keys for better usability
 inoremap jj <ESC>                           " Map 'jj' to ESC in insert mode
@@ -83,11 +84,22 @@ nnoremap <C-s> :FzfFilesFromSpecificFolder<CR>
 " NERDTree for easy navigation and file management
 nmap <C-n> :NERDTreeToggle<CR>
 
-" ==========================
+function! OpenFileAndFindInNerdTree()
+  " Open FZF to search for and open a file
+  " The selected file from fzf will replace the current buffer
+  FzfFilesFromSpecificFolder
+
+  " Set up an autocommand to trigger NERDTreeFind after a file is opened
+  " This will highlight the file in NERDTree
+  autocmd BufReadPost * ++once NERDTreeFind
+endfunction
+
+" Map the function to a shortcut, for example <Leader>f
+nnoremap <silent> <C-s> :call OpenFileAndFindInNerdTree()<CR>
+
 " Language-Specific Settings
 " ==========================
 " Go development enhancements
-let mapleader = ","
 nnoremap <Leader>g :YcmCompleter GoTo<CR>
 nnoremap <Leader>b <C-o>
 
@@ -99,3 +111,5 @@ highlight Pmenu guibg=#D3D3D3 guifg=#505050
 highlight goDeclaration guifg=#ADD8E6
 highlight goStatement guifg=#D291E4
 highlight goVar guifg=#ADD8E6
+highlight goPackage guifg=#ADD8E6
+highlight goImport guifg=#ADD8E6
