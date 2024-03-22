@@ -1,0 +1,28 @@
+# Enable mouse support
+set -g mouse on
+
+# Update existing bindings for copying to use the system clipboard
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -selection clipboard -in"
+bind -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel "xclip -selection clipboard -in"
+
+# Attempt to bind pasting with right-click (Note: This might not work in all terminal emulators)
+bind-key -n MouseDown2Pane run "xclip -selection clipboard -out | tmux load-buffer - ; tmux paste-buffer"
+
+# General status bar style
+set -g status-style bg=#a8a8a8,fg=#505050
+
+# Style for the current window
+setw -g window-status-current-style bg=#00afff,fg=#ffffff,bold
+
+# Format for the current window with Powerline symbols
+setw -g window-status-current-format " #[fg=#d0d0d0,bg=#00afff,bold]#I #W#F #[fg=#00afff,bg=#a8a8a8,nobold] "
+
+# Right status bar style with Powerline symbols
+set -g status-interval 3
+set -g status-right-length 100
+# set -g status-right " #[fg=#00afff,bg=#a8a8a8]#[fg=#ffffff,bold,bg=#00afff] %H:%M %d-%b-%y #[fg=#a8a8a8,bg=#00afff]#[fg=#ffffff,bold,bg=#a8a8a8] #(hostname -s) "
+
+set -g status-right " #[fg=#00afff,bg=#a8a8a8]#[fg=#ffffff,bold,bg=#00afff] #(awk '/^MemTotal:/ {total=$2} /^MemAvailable:/ {available=$2} END {printf \"Mem: %.2f%% |\", (total-available)/total*100}' /proc/meminfo)#[bold]#[fg=#ffffff,bold,bg=#00afff] #(top -bn1 | grep 'Cpu(s)' | awk -F', ' '{sub(\"%.*\", \"\", $4); printf \"CPU: %.0f%%\", 100 - $4}') #[fg=#a8a8a8,bg=#00afff]#[fg=#ffffff,bold,bg=#a8a8a8] %H:%M %d-%b-%y #[fg=#00afff,bg=#a8a8a8]#[fg=#ffffff,bold,bg=#00afff] #(hostname -s) "
+
+# Left status bar style
+set -g status-left "#[bg=#00afff,fg=#a8a8a8]#[fg=#ffffff,bold,bg=#00afff][#S]"

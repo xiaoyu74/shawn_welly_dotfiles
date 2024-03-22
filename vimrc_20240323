@@ -12,10 +12,10 @@ set guifont=Fira\ Code\ Retina:h11          " Set GUI font
 let mapleader = ","
 
 " Remap keys for better usability
-inoremap jj <ESC>                           " Map 'jj' to ESC in insert mode
+" inoremap jj <ESC>                           " Map 'jj' to ESC in insert mode
 
 " Custom commands for convenience
-command! Blame Git blame                    " Add a custom command for Git blame
+command! Blame git blame                    " Add a custom command for Git blame
 
 " =================
 " Plugin Management
@@ -79,7 +79,7 @@ set updatetime=300
 " Fzf and The Silver Searcher for efficient searching
 set rtp+=~/.fzf
 command! FzfFilesFromSpecificFolder cd ~/osd_functional_work | Files
-nnoremap <C-s> :FzfFilesFromSpecificFolder<CR>
+" nnoremap <C-s> :FzfFilesFromSpecificFolder<CR>
 
 " NERDTree for easy navigation and file management
 nmap <C-n> :NERDTreeToggle<CR>
