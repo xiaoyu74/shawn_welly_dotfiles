@@ -25,6 +25,8 @@ if [ -d ~/.bashrc.d ]; then
 fi
 unset rc  # Clean up
 
+export EDITOR=vim
+
 # Fcitx Input Method
 export GTK_IM_MODULE=fcitx5
 export QT_IM_MODULE=fcitx5
@@ -50,9 +52,17 @@ if ! [[ ":$PATH:" == *":/home/sbai/go/bin:"* ]]; then
 fi
 export PATH
 
+export GOROOT=/usr/local/go
+export PATH=$GOROOT/bin:$PATH
+export PATH=$PATH:/usr/local/go/bin
+export GO111MODULE=on
+
 # Alias and function definitions
 # Alias for quickly navigating to a specific work directory
 alias devwork="cd ~/osd_functional_work"
+alias opswork="cd ~/osd_operation_work"
+alias ghrepo="cd ~/osd_functional_work/github_repo"
+alias glrepo="cd ~/osd_functional_work/gitlab_repo"
 
 # Function for navigating using a tree view and fzf
 ft() {
@@ -65,22 +75,30 @@ ft() {
 export PATH=$PATH:~/.npm-global/bin
 
 ## OSD/ROSA/Backplane settings
+source /etc/profile.d/bash_completion.sh
+source <(oc completion bash)
 
 # backplane login settings
 export OCM_TOKEN=""
 
 ocm-stg () {
-    ocm login --token $OCM_TOKEN --url "https://api.stage.openshift.com"
+    # ocm login --token $OCM_TOKEN --url "https://api.stage.openshift.com"
+    ocm logout
+    ocm login --use-auth-code --url "https://api.stage.openshift.com"
     ln -f ~/.config/backplane/config.stg.json ~/.config/backplane/config.json
 }
 
 ocm-int () {
-    ocm login --token $OCM_TOKEN --url "https://api.integration.openshift.com"
+    # ocm login --token $OCM_TOKEN --url "https://api.integration.openshift.com"
+    ocm logout
+    ocm login --use-auth-code --url "https://api.integration.openshift.com"
     ln -f ~/.config/backplane/config.int.json ~/.config/backplane/config.json
 }
 
 ocm-prod () {
     ocm login --token $OCM_TOKEN --url "https://api.openshift.com"
+    # ocm logout
+    # ocm login --use-auth-code --url "https://api.openshift.com"
     ln -f ~/.config/backplane/config.prod.json ~/.config/backplane/config.json
 }
 
@@ -91,70 +109,35 @@ alias occ-local='OCM_CONTAINER_LAUNCH_OPTS="-v ${PWD}:/root/local -w /root/local
 
 # OSD/ROSA cluster operations alias
 BACKPLANE_DEFAULT_OPEN_BROWSER=true
+alias olc='ocm list cluster --managed'
 alias occ='osdctl cluster context -S'
+alias odc='ocm describe cluster'
+alias obs='ocm-backplane session -c'
+alias obsm='ocm-backplane session --manager -c'
+alias obl='ocm-backplane login'
+alias console='ocm-backplane console'
+alias cloud-console='ocm-backplane cloud console'
 alias codown="oc get co | awk '{ if (\$5 == \"True\" || \$4 == \"True\" || NR==1) print \$0; }'"
+alias verify-egress='osdctl network verify-egress --cluster-id'
+alias sl='osdctl servicelog list'
+alias dt='osdctl cluster dynatrace url'
+
 alias od='oc describe'
 alias og='oc get'
 alias ocp='oc project'
-alias fileusage='df -h'
-alias random_line='shuf -n 1'
 alias ol='oc logs'
 alias olt='oc logs --tail 50'
 alias oes='oc get event --sort-by=.metadata.creationTimestamp'
+alias oc-admin='oc --as=backplane-cluster-admin'
+alias awsconsole='google-chrome "https://us-east-1.console.aws.amazon.com/console/home"'
+alias ocmstg='ocm config set url https://api.stage.openshift.com'
+alias ocmlogin='ocm login --use-auth-code'
 
-# ## PS1 Setup for OSD/ROSA cluster access
-# source /home/sbai/osd_functional_work/kube-ps1.sh
-# function cluster_function {
-#   info="$(ocm backplane status 2> /dev/null)"
-#   if [ $? -ne 0 ]; then return; fi
-#   clustername=$(grep "Cluster Name" <<< $info | awk '{print $3}')
-#   baseid=$(grep "Cluster Basedomain" <<< $info | awk '{print $3}' | cut -d'.' -f1,2)
-#   echo $clustername.$baseid
-# }
-# KUBE_PS1_BINARY=oc
-# export KUBE_PS1_CLUSTER_FUNCTION=cluster_function
-# PS1='[\u@\h \W $(kube_ps1)]\$ '
+# Function to extend OCM cluster expiration
+cluster-extend() {
+    local cluster_id=$1
+    ocm edit cluster --expiration 168h0m0s $cluster_id
+}
 
-# # Define ocm-backplane login Functions for easy login and logout
-# obl() {
-#   source /home/sbai/osd_functional_work/kube-ps1.sh
-#   function cluster_function {
-#     info="$(ocm backplane status 2> /dev/null)"
-#     if [ $? -ne 0 ]; then return; fi
-#     clustername=$(grep "Cluster Name" <<< $info | awk '{print $3}')
-#     baseid=$(grep "Cluster Basedomain" <<< $info | awk '{print $3}' | cut -d'.' -f1,2)
-#     echo $clustername.$baseid
-#   }
-#   KUBE_PS1_BINARY=oc
-#   export KUBE_PS1_CLUSTER_FUNCTION=cluster_function
-#   PS1='[\u@\h \W $(kube_ps1)]\$ '
-
-#   ocm backplane login $1
-# }
-
-# obl_mc() {
-#   exec "$SHELL" -l
-#   source /home/sbai/osd_functional_work/kube-ps1.sh
-#   function cluster_function {
-#     info="$(ocm backplane status 2> /dev/null)"
-#     if [ $? -ne 0 ]; then return; fi
-#     clustername=$(grep "Cluster Name" <<< $info | awk '{print $3}')
-#     baseid=$(grep "Cluster Basedomain" <<< $info | awk '{print $3}' | cut -d'.' -f1,2)
-#     echo $clustername.$baseid
-#   }
-#   KUBE_PS1_BINARY=oc
-#   export KUBE_PS1_CLUSTER_FUNCTION=cluster_function
-#   PS1='[\u@\h \W $(kube_ps1)]\$ '
-
-#   ocm backplane login --manager $1
-# }
-
-# oblout() {
-#   ocm backplane logout
-#   if [ -f "$(which powerline-daemon)" ]; then
-#     powerline-daemon -q
-#     POWERLINE_BASH_CONTINUATION=1
-#     POWERLINE_BASH_SELECT=1
-#     . /usr/share/powerline/bash/powerline.sh
-#   fi
-# }
+# Make the function available in the current shell
+export -f cluster-extend
