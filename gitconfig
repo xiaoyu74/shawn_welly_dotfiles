@@ -3,6 +3,7 @@
 	br = branch
 	ci = commit
 	st = status
+	ft = fetch upstream
 [user]
 	name = Shawn Bai
 	email = sbai@redhat.com
